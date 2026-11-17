@@ -147,3 +147,6 @@ run(async () => {
   todos = await api.list();
   render();
 });
+
+import { initTabs } from "./tabs/tab3.ts";
+initTabs();
