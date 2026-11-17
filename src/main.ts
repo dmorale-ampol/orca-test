@@ -1,5 +1,8 @@
 import { api, type Todo } from "./api.ts";
+import { initTabs } from "./tabs/tab1.ts";
 import "./style.css";
+
+initTabs();
 
 const form = document.querySelector<HTMLFormElement>("#add-form")!;
 const input = document.querySelector<HTMLInputElement>("#new-title")!;
