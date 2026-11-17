@@ -3,6 +3,7 @@ export interface Todo {
   title: string;
   completed: boolean;
   createdAt: string;
+  dueDate: string | null;
 }
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
@@ -30,8 +31,13 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   list: () => request<Todo[]>("/api/todos"),
-  create: (title: string) =>
-    request<Todo>("/api/todos", { method: "POST", body: JSON.stringify({ title }) }),
+  create: (title: string, dueDate?: string | null) =>
+    request<Todo>("/api/todos", {
+      method: "POST",
+      body: JSON.stringify({ title, dueDate: dueDate ?? null }),
+    }),
+  setDueDate: (id: number, dueDate: string | null) =>
+    request<Todo>(`/api/todos/${id}`, { method: "PATCH", body: JSON.stringify({ dueDate }) }),
   setCompleted: (id: number, completed: boolean) =>
     request<Todo>(`/api/todos/${id}`, { method: "PATCH", body: JSON.stringify({ completed }) }),
   remove: (id: number) => request<void>(`/api/todos/${id}`, { method: "DELETE" }),
