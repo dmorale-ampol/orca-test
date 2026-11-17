@@ -8,19 +8,28 @@
   <body>
     <main>
       <h1>Todos</h1>
-      <form id="add-form" novalidate>
-        <label for="new-title">New todo</label>
-        <div class="row">
-          <input id="new-title" name="title" type="text" maxlength="200" autocomplete="off" aria-describedby="form-error" />
-          <button type="submit">Add</button>
-        </div>
-        <label for="new-due" class="due-label">Due date (optional)</label>
-        <input id="new-due" name="dueDate" type="date" aria-describedby="form-error" />
-        <p id="form-error" class="error" hidden></p>
-      </form>
-      <p id="status" role="status" aria-live="polite" class="error" hidden></p>
-      <p id="empty" hidden>No todos yet. Add one above.</p>
-      <ul id="list" aria-label="Todo list"></ul>
+      <div role="tablist" aria-label="Sections" class="tabs">
+        <button type="button" role="tab" id="tab-todos" class="tab" aria-selected="true" aria-controls="panel-todos">Todos</button>
+        <button type="button" role="tab" id="tab-2" class="tab" aria-selected="false" aria-controls="panel-2" tabindex="-1">Tab 2</button>
+      </div>
+      <section role="tabpanel" id="panel-todos" aria-labelledby="tab-todos">
+        <form id="add-form" novalidate>
+          <label for="new-title">New todo</label>
+          <div class="row">
+            <input id="new-title" name="title" type="text" maxlength="200" autocomplete="off" aria-describedby="form-error" />
+            <button type="submit">Add</button>
+          </div>
+          <label for="new-due" class="due-label">Due date (optional)</label>
+          <input id="new-due" name="dueDate" type="date" aria-describedby="form-error" />
+          <p id="form-error" class="error" hidden></p>
+        </form>
+        <p id="status" role="status" aria-live="polite" class="error" hidden></p>
+        <p id="empty" hidden>No todos yet. Add one above.</p>
+        <ul id="list" aria-label="Todo list"></ul>
+      </section>
+      <section role="tabpanel" id="panel-2" aria-labelledby="tab-2" hidden>
+        <button type="button" id="btn-b">B</button>
+      </section>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>

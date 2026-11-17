@@ -147,3 +147,25 @@ run(async () => {
   todos = await api.list();
   render();
 });
+
+const tabs = Array.from(document.querySelectorAll<HTMLElement>('[role="tab"]'));
+
+function selectTab(tab: HTMLElement, focus = false) {
+  for (const t of tabs) {
+    const active = t === tab;
+    t.setAttribute("aria-selected", String(active));
+    t.tabIndex = active ? 0 : -1;
+    document.getElementById(t.getAttribute("aria-controls")!)!.hidden = !active;
+  }
+  if (focus) tab.focus();
+}
+
+tabs.forEach((tab, i) => {
+  tab.addEventListener("click", () => selectTab(tab));
+  tab.addEventListener("keydown", (e) => {
+    const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!step) return;
+    e.preventDefault();
+    selectTab(tabs[(i + step + tabs.length) % tabs.length], true);
+  });
+});
