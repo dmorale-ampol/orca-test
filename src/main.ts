@@ -3,6 +3,7 @@ import "./style.css";
 
 const form = document.querySelector<HTMLFormElement>("#add-form")!;
 const input = document.querySelector<HTMLInputElement>("#new-title")!;
+const dueInput = document.querySelector<HTMLInputElement>("#new-due")!;
 const formError = document.querySelector<HTMLElement>("#form-error")!;
 const status = document.querySelector<HTMLElement>("#status")!;
 const empty = document.querySelector<HTMLElement>("#empty")!;
@@ -19,14 +20,23 @@ function showFormError(message?: string) {
   formError.hidden = !message;
   formError.textContent = message ?? "";
   input.toggleAttribute("aria-invalid", !!message);
+  dueInput.toggleAttribute("aria-invalid", !!message);
+}
+
+function localToday() {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 function render() {
+  const today = localToday();
   empty.hidden = todos.length > 0;
   list.replaceChildren(
     ...todos.map((todo) => {
       const li = document.createElement("li");
-      li.className = todo.completed ? "done" : "";
+      const overdue = !todo.completed && !!todo.dueDate && todo.dueDate < today;
+      li.className = [todo.completed ? "done" : "", overdue ? "overdue" : ""].filter(Boolean).join(" ");
 
       const id = `todo-${todo.id}`;
       const box = document.createElement("input");
@@ -39,6 +49,14 @@ function render() {
       label.htmlFor = id;
       label.textContent = todo.title;
 
+      const due = document.createElement("input");
+      due.type = "date";
+      due.id = `due-${todo.id}`;
+      due.className = "due";
+      due.value = todo.dueDate ?? "";
+      due.setAttribute("aria-label", `Due date for "${todo.title}"`);
+      due.addEventListener("change", () => changeDue(todo, due));
+
       const del = document.createElement("button");
       del.type = "button";
       del.className = "delete";
@@ -46,7 +64,14 @@ function render() {
       del.setAttribute("aria-label", `Delete "${todo.title}"`);
       del.addEventListener("click", () => remove(todo));
 
-      li.append(box, label, del);
+      if (overdue) {
+        const badge = document.createElement("span");
+        badge.className = "badge overdue-badge";
+        badge.textContent = "Overdue";
+        li.append(box, label, badge, due, del);
+      } else {
+        li.append(box, label, due, del);
+      }
       return li;
     }),
   );
@@ -65,6 +90,17 @@ async function toggle(todo: Todo, box: HTMLInputElement) {
   await run(async () => {
     try {
       const updated = await api.setCompleted(todo.id, box.checked);
+      todos = todos.map((t) => (t.id === updated.id ? updated : t));
+    } finally {
+      render();
+    }
+  });
+}
+
+async function changeDue(todo: Todo, due: HTMLInputElement) {
+  await run(async () => {
+    try {
+      const updated = await api.setDueDate(todo.id, due.value || null);
       todos = todos.map((t) => (t.id === updated.id ? updated : t));
     } finally {
       render();
@@ -91,19 +127,21 @@ form.addEventListener("submit", async (e) => {
   showFormError();
   await run(async () => {
     try {
-      todos = [...todos, await api.create(title)];
+      todos = [...todos, await api.create(title, dueInput.value || null)];
     } catch (err) {
       showFormError(err instanceof Error ? err.message : "Could not add todo.");
       input.focus();
       return;
     }
     input.value = "";
+    dueInput.value = "";
     render();
     input.focus();
   });
 });
 
 input.addEventListener("input", () => showFormError());
+dueInput.addEventListener("input", () => showFormError());
 
 run(async () => {
   todos = await api.list();
