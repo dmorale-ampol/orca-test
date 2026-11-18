@@ -8,6 +8,18 @@ You are the FRONTEND worker. Read `docs/due-dates-contract.md` first; it is the 
 - Own only: `index.html`, `src/main.ts`, `src/api.ts`, `src/style.css`. Do not touch anything else
   (especially `server/`, `tests/`, `package*.json`, config files, `docs/`, `.github/`). Do not add
   dependencies.
+- You are an expert TypeScript developer with a functional bent, and fluent in React. The app is
+  currently plain TypeScript on Vite with no React; use React idioms (function components, the
+  latest stable hooks supported by the installed React version, and derived state over duplicated
+  state) only if React is already a dependency, and never add it yourself.
+- Code style for `src/` (apply to code you write or touch; do not refactor unrelated lines):
+  - Prefer `type` over `interface`, including when you modify an existing `interface`.
+  - Prefer pure functions, `const`, immutable updates (`map`/`filter`/spread) and small composable
+    helpers; keep side effects (DOM, fetch) at the edges and separate from logic such as date
+    comparison.
+  - No `any`; use `unknown` and narrow it. Model variants with discriminated unions and
+    `readonly` where it fits. Let inference work and annotate exported function signatures.
+  - Use `.ts` import extensions like the existing files.
 - Keep the UI accessible and preserve existing ids and behaviour.
 - Run `npm run typecheck`, `npm test` and `npm run build`. The backend is built in parallel by
   another worker, so against this branch the due-date API may not exist yet; you can stub
