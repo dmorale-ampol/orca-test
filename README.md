@@ -1,11 +1,15 @@
 # Todo app
 
-Node 24, TypeScript, Vite, Express, SQLite (built-in `node:sqlite`). Data lives in `data/todos.db` (git-ignored).
+Node 24, TypeScript, Express, SQLite (built-in `node:sqlite`). Data lives in `data/todos.db` (git-ignored).
 
-- `npm install`
-- `npm start` — builds, then serves the app at http://127.0.0.1:3000
+Frontend: React 19 + Vite + TypeScript. `index.html` mounts `<div id="root">`; `src/main.tsx` renders `<App/>` in `StrictMode`. See [docs/react-architecture.md](docs/react-architecture.md) for the component tree and file map.
+
+- `npm install` (or `npm ci` in a fresh worktree)
+- `npm start` — builds, then serves the built React app from `dist/` at http://127.0.0.1:3000
 - `npm run dev` — Vite (http://localhost:5173) + API with reload
-- `npm test` — API/persistence tests; `npm run typecheck`
+- `npm test` — Vitest; `npm run typecheck`; `npm run build`
+
+Tests: `tests/**/*.test.ts` run in the `node` project (API/persistence); `tests/**/*.test.tsx` run in the `dom` project (jsdom, setup `tests/setup-dom.ts`) using `@testing-library/react` with `fireEvent` and plain `expect`.
 
 Env: `HOST` (default `127.0.0.1`, localhost-only), `PORT` (default 3000), `DB_FILE` (default `data/todos.db`).
 
