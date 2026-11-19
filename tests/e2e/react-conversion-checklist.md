@@ -249,12 +249,21 @@ Seed data for this section (add through the UI in this order; "today" = the mach
 ### UI19 — due-date edit, including keyboard entry (risk R3)
 - [ ] A. Picker: on `No date`, choose a date with the date picker → exactly one
   `PATCH {"dueDate":"YYYY-MM-DD"}`; overdue state and badge update.
-- [ ] B. **Keyboard entry (R3)**: in Network filter on `PATCH` and clear the log. Focus `#due-{id}` of
-  `Future` and type a full date digit by digit with the keyboard (e.g. for 2029-01-02 in an
-  MM/DD/YYYY locale: `0`,`1`,`0`,`2`,`2`,`0`,`2`,`9`), then press **Tab**.
-  Expected: **no** PATCH carries an intermediate year such as `0002-…`, `0020-…` or `0202-…`; the
-  last PATCH payload is `{"dueDate":"2029-01-02"}`; record how many PATCHes were sent. After reload
-  the input shows 2029-01-02.
+- [ ] B. **Keyboard entry (R3)**: in Network filter on `PATCH` and clear the log. First log the native
+  events on the input (eval):
+  ```js
+  const d = document.getElementById('due-{id}'); window.__ev = [];
+  ['input','change'].forEach(t => d.addEventListener(t, () => window.__ev.push([t, d.value])));
+  ```
+  Focus `#due-{id}` of `Future` and type a full date digit by digit with the keyboard (e.g. for
+  2029-01-02 in an MM/DD/YYYY locale: `0`,`1`,`0`,`2`,`2`,`0`,`2`,`9`), then press **Tab**. Eval
+  `window.__ev`.
+  Expected (pass condition): the number of PATCH requests equals the number of native `change`
+  events in `window.__ev` — never one PATCH per `input` event; the last PATCH payload is
+  `{"dueDate":"2029-01-02"}`; after reload the input shows 2029-01-02.
+  Informational (not a failure): Chromium fires a native `change` on every keystroke that completes
+  a valid date, so PATCHes with intermediate years such as `0002-…`, `0020-…` or `0202-…` may
+  appear; record them and the `input`/`change` counts in the notes.
 - [ ] C. Clear: clear the date (select each segment and press Backspace, or the picker's Clear) →
   `PATCH {"dueDate":null}`; input value `""`; no badge.
 - [ ] D. Failure: stop the API, change a date → the input reverts to the previous server value;
@@ -318,7 +327,7 @@ Seed data for this section (add through the UI in this order; "today" = the mach
      `PORT=$(node -e "const s=require('net').createServer();s.listen(0,()=>{console.log(s.address().port);s.close()})")`.
   3. `rm -f /tmp/e2e-react.db && NODE_ENV=production DB_FILE=/tmp/e2e-react.db PORT=$PORT npx tsx server/index.ts`.
      `server/index.ts` serves `dist/` **only** when `NODE_ENV=production` (without it `/` returns a
-     404 JSON). `npm start` does the same on port 3000; the free port avoids clashes.
+     404). `npm start` does the same on port 3000; the free port avoids clashes.
   4. Open `http://127.0.0.1:$PORT/`. Expected: the React app renders (title "Todos", `#root > main`,
      4 tabs) and `#empty` is visible.
   5. Add `Persist me` (due yesterday) and `Second` (no date); check `Second`.
