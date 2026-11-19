@@ -341,3 +341,4 @@ This order merges leaves first and App last. The files are disjoint, so there sh
 - **Q4** Frontend workers do not write tests; QA owns `tests/ui/` (FOUNDATION owns only `tests/setup-dom.ts` and `tests/ui/foundation-smoke.test.tsx`).
 - Base branch for this release is `dmorale-ampol/react-update`; read `main` in UI24's diff check as this base's pre-foundation commit `88172c0`.
 - Everything is local: no push, PR or deploy. `release` is not run.
+- **UI19-B (keyboard date entry, accepted 2026-11-19)** Typing a full date digit by digit can send an intermediate invalid year (e.g. `0002-…`), which the server rejects; the failure revert then resets the input, so the date can end empty with a stale `#status` error. The implementation meets UI19 (commit on native `change`, revert on failure) and the pre-conversion app is also broken here, so this is accepted as a known, pre-existing issue and does not block the release.
