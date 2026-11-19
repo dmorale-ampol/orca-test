@@ -155,7 +155,7 @@ describe("UI15 #empty", () => {
     expect(isHidden(document.getElementById("empty"))).toBe(true);
   });
 
-  test("UI15 hidden whenever todos exist; shown again after the last one is deleted", async () => {
+  test("UI15 visible after an empty load, hidden once a todo is added", async () => {
     mockApi([]);
     render(<App />);
     await waitFor(() => expect(isHidden(document.getElementById("empty"))).toBe(false));
