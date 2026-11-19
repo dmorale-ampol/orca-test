@@ -1,10 +1,5 @@
-export interface Todo {
-  id: number;
-  title: string;
-  completed: boolean;
-  createdAt: string;
-  dueDate: string | null;
-}
+import type { Todo } from "./types.ts";
+export type { Todo } from "./types.ts";
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   let res: Response;
